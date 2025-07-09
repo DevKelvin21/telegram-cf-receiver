@@ -39,5 +39,11 @@ jobs:
           --entry-point telegram_bot \
           --region us-central1 \
           --service-account ${{ secrets.SERVICE_ACCOUNT }} \
-          --set-env-vars TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }},\
-        GOOGLE_CLOUD_PROJECT=${{ secrets.GOOGLE_CLOUD_PROJECT }}
+          --set-env-vars TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }},GOOGLE_CLOUD_PROJECT=${{ secrets.GOOGLE_CLOUD_PROJECT }}
+
+    - name: Set IAM policy for unauthenticated access
+      run: |
+        gcloud functions add-iam-policy-binding bot_receiver \
+          --region us-central1 \
+          --member="allUsers" \
+          --role="roles/cloudfunctions.invoker"
