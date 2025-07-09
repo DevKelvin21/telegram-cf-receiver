@@ -1,0 +1,43 @@
+name: Deploy Telegram receiver to GCP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy receiver Cloud Function
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    - name: Deploy Cloud Function
+      run: |
+        gcloud functions deploy bot_receiver \
+          --runtime python313 \
+          --trigger-http \
+          --no-gen2 \
+          --memory 512MB \
+          --timeout 540s \
+          --allow-unauthenticated \
+          --entry-point telegram_bot \
+          --region us-central1 \
+          --service-account ${{ secrets.SERVICE_ACCOUNT }} \
+          --set-env-vars TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }},\
+        GOOGLE_CLOUD_PROJECT=${{ secrets.GOOGLE_CLOUD_PROJECT }}
