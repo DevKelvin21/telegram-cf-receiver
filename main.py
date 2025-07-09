@@ -21,7 +21,7 @@ async def main(request):
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     if request.method == 'GET':
-        await app.bot.set_webhook(f'https://{request.host}/telegram_bot')
+        await app.bot.set_webhook(f'https://{request.host}/telegram_receiver')
         return "Webhook set"
 
     async with app:
