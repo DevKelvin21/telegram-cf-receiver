@@ -60,3 +60,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
     topic_path = publisher.topic_path(project_id, "telegram-transactions")
     publisher.publish(topic_path, json.dumps(data).encode("utf-8"))
+
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text="Tu mensaje ha sido recibido y procesado. Gracias por tu paciencia."
+    )
