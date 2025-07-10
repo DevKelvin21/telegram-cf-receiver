@@ -54,6 +54,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "timestamp": local_timestamp.isoformat(),
     }
 
+    print (f"Publishing message to Pub/Sub: {data}")
+
     publisher = pubsub_v1.PublisherClient()
     project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
     topic_path = publisher.topic_path(project_id, "telegram-transactions")
