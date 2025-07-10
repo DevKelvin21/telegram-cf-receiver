@@ -7,36 +7,36 @@ from telegram import Update
 from google.cloud import pubsub_v1
 import json
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-
 @http
 def telegram_bot(request):
     return asyncio.run(main(request))
 
 
 async def main(request):
-    app = Application.builder().token(TELEGRAM_TOKEN).build()
+    token = os.environ.get('TELEGRAM_TOKEN')
+    app = Application.builder().token(token).build()
+    bot = app.bot
 
     app.add_handler(CommandHandler("start", on_start))
     app.add_handler(MessageHandler(filters.TEXT, on_message))
 
     if request.method == 'GET':
-        await app.bot.set_webhook(f'https://{request.host}/telegram_receiver')
-        return "Webhook set"
+        await bot.set_webhook(f'https://{request.host}/telegram_receiver')
+        return "webhook set"
 
     async with app:
-        update = Update.de_json(request.json, app.bot)
+        update = Update.de_json(request.json, bot)
         await app.process_update(update)
 
     return "ok"
 
-async def on_start(update: Update, context):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Hola, soy tu bot de ventas y gastos para la floristería Morale's 🌸"
-    )
+# async def on_start(update: Update, context):
+#     await context.bot.send_message(
+#         chat_id=update.effective_chat.id,
+#         text="Hola, soy tu bot de ventas y gastos para la floristería Morale's 🌸"
+#     )
 
-async def on_message(update: Update, context):
+# async def on_message(update: Update, context):
     message = update.message
     chat_id = update.effective_chat.id
     print(f"Received message from chat {chat_id}: {message.text}")
@@ -64,4 +64,17 @@ async def on_message(update: Update, context):
     await context.bot.send_message(
         chat_id=chat_id,
         text="Tu mensaje ha sido recibido y procesado. Gracias por tu paciencia."
+    )
+
+async def on_start(update: Update, context):
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Hello, I'm your first bot!"
+    )
+
+
+async def on_message(update: Update, context):
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text=update.message.text
     )
