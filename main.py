@@ -1,6 +1,6 @@
 import asyncio
 from functions_framework import http
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
 import pytz
 import os
 from telegram import Update
@@ -18,7 +18,7 @@ async def main(request):
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start", on_start))
-    app.add_handler(MessageHandler(filters.TEXT, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT, on_message))
 
     if request.method == 'GET':
         await app.bot.set_webhook(f'https://{request.host}/telegram_receiver')
@@ -30,13 +30,13 @@ async def main(request):
 
     return "ok"
 
-async def on_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def on_start(update: Update, context):
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="Hola, soy tu bot de ventas y gastos para la floristería Morale's 🌸"
     )
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def on_message(update: Update, context):
     message = update.message
     chat_id = update.effective_chat.id
     print(f"Received message from chat {chat_id}: {message.text}")
