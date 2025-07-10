@@ -39,6 +39,7 @@ async def on_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
     chat_id = update.effective_chat.id
+    print(f"Received message from chat {chat_id}: {message.text}")
     if not message:
         return
 
