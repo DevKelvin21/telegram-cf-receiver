@@ -36,7 +36,7 @@ jobs:
           --memory 512MB \
           --timeout 540s \
           --allow-unauthenticated \
-          --entry-point telegram_receiver \
+          --entry-point bot_receiver \
           --region us-central1 \
           --service-account ${{ secrets.SERVICE_ACCOUNT }} \
           --set-env-vars TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }},GOOGLE_CLOUD_PROJECT=${{ secrets.GOOGLE_CLOUD_PROJECT }}

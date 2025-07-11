@@ -64,7 +64,7 @@ async def main(request):
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     if request.method == 'GET':
-        webhook_url = f'https://{request.host}/telegram_receiver'
+        webhook_url = f'https://{request.host}/bot_receiver'
         logger.info(f"Setting webhook to: {webhook_url}")
         try:
             await bot.set_webhook(webhook_url)
@@ -90,7 +90,7 @@ async def main(request):
     return "ok"
 
 @http
-def telegram_receiver(request):
+def bot_receiver(request):
     logger.info("Cloud Function invoked")
     try:
         result = asyncio.run(main(request))
