@@ -1,15 +1,11 @@
 import asyncio
 from functions_framework import http
-
-import pytz
 import os
-from google.cloud import pubsub_v1
-import json
-
+import pytz
 import logging
-
 from telegram import ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from pubsub import PubSubPublisher
 
 # Enable logging
 logging.basicConfig(
@@ -44,6 +40,26 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     message_text = update.message.text
     logger.info(f"Echo message received from user {user.full_name} (ID: {user.id}): '{message_text[:50]}{'...' if len(message_text) > 50 else ''}'")
+    # Configure TZ
+    el_salvador_tz = pytz.timezone("America/El_Salvador")
+    local_timestamp = update.message.date.astimezone(el_salvador_tz)
+    # Publish the message to Pub/Sub
+    pubsub_publisher = PubSubPublisher(
+        project_id=os.environ.get('GOOGLE_CLOUD_PROJECT', 'your-project-id'),
+        topic_name='telegram-transactions'
+    )
+    try:
+        pubsub_publisher.publish({
+            'user_id': user.id,
+            'user_name': user.full_name,
+            'message_text': message_text,
+            'timestamp': local_timestamp.isoformat()
+        })
+        logger.info(f"Message published to Pub/Sub for user {user.full_name} (ID: {user.id})")
+    except Exception as e:
+        logger.error(f"Failed to publish message to Pub/Sub: {str(e)}")
+        await update.message.reply_text("An error occurred while processing your message.")
+        return
     await update.message.reply_text(update.message.text)
     logger.info(f"Echo response sent to user {user.full_name}")
 
