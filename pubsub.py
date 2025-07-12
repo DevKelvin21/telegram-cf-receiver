@@ -2,10 +2,6 @@ from google.cloud import pubsub_v1
 import json
 import logging
 
-# Configure logging for PubSub operations
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
 logger = logging.getLogger(__name__)
 
 class PubSubPublisher:
@@ -22,15 +18,22 @@ class PubSubPublisher:
             raise
 
     def publish(self, data: dict):
-        """Publish a message to the Pub/Sub topic."""
+        """Publish a message to the Pub/Sub topic asynchronously."""
         try:
             logger.info(f"Publishing message to topic {self.topic_name}: {data.get('message_id', 'unknown_id')}")
             message_json = json.dumps(data).encode('utf-8')
             future = self.publisher.publish(self.topic_path, message_json)
-            result = future.result()  # Wait for the publish to complete
-            logger.info(f"Message published successfully. Message ID: {result}")
-            return result
+            
+            future.add_done_callback(
+                lambda f: logger.info(f"Message published successfully. Message ID: {f.result()}") if not f.exception() else None
+            )
+            
+            future.add_done_callback(
+                lambda f: logger.error(f"Failed to publish message to {self.topic_name}: {f.exception()}") if f.exception() else None
+            )
+            
+            return future
         except Exception as e:
-            logger.error(f"Failed to publish message to {self.topic_name}: {str(e)}")
+            logger.error(f"Failed to initiate publish to {self.topic_name}: {str(e)}")
             logger.error(f"Message data: {data}")
             raise
