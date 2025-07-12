@@ -36,8 +36,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
     user = update.effective_user
     logger.info(f"Start command received from user {user.full_name} (ID: {user.id})")
+    
+    welcome_message = f"""🌸 ¡Hola {user.mention_html()}! 🌸
+
+    Bienvenido/a al bot de ventas y gastos para la floristería Morale's �
+
+    📋 <b>¿Qué puedo hacer por ti?</b>
+    • Registrar ventas y transacciones
+    • Ayudarte con el control de gastos
+    • Mantener un registro de tus operaciones
+
+    💡 <b>Para comenzar:</b>
+    Simplemente envía un mensaje describiendo tu venta o gasto, y yo me encargaré del resto.
+
+    ❓ Si necesitas más ayuda, envía el comando /help"""
+    
     await update.message.reply_html(
-        rf"Hi {user.mention_html()}!",
+        welcome_message,
         reply_markup=ForceReply(selective=True),
     )
     logger.info(f"Start response sent to user {user.full_name}")
