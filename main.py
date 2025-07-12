@@ -67,7 +67,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             'user_id': user.id,
             'user_name': user.full_name,
             'message_text': message_text,
-            'message_id': update.update_id,
+            'message_id': update.message.message_id,
             'timestamp': local_timestamp.isoformat()
         })
         logger.info(f"Message queued for publication to Pub/Sub for user {user.full_name} (ID: {user.id})")
