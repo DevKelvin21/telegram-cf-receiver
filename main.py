@@ -61,7 +61,39 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     """Send a message when the command /help is issued."""
     user = update.effective_user
     logger.info(f"Help command received from user {user.full_name} (ID: {user.id})")
-    await update.message.reply_text("Help!")
+    
+    help_message = """📖 <b>Ayuda - Bot Floristería Morale's</b> 🌸
+
+    🔄 <b>Funcionalidades:</b>
+    • <b>Seguimiento de Ventas y Gastos:</b> Analiza automáticamente los mensajes para registrar ventas y gastos
+    • <b>Gestión de Transacciones:</b> Eliminar transacciones por ID
+    • <b>Reporte de Cierre Diario:</b> Genera un resumen de ventas diarias, gastos y balance de efectivo
+    • <b>Notificaciones en Vivo:</b> Envía notificaciones en tiempo real al propietario sobre las operaciones realizadas
+
+    📝 <b>Formatos para registrar transacciones:</b>
+
+    💰 <b>Para VENTAS:</b>
+    <code>1 ROSA TOTAL $1.00 MILA</code>
+    • Especificar: cantidad + producto + TOTAL + precio + nombre de la persona
+
+    💸 <b>Para GASTOS:</b>
+    <code>GASTE EN SOBRES TOTAL $18.00 JOSUE</code>
+    • Especificar: GASTE EN + descripción + TOTAL + precio + nombre de la persona
+
+    🗑️ <b>Para ELIMINAR transacciones:</b>
+    <code>ELIMINAR afb2cbb2-e041-4dae-a0d2-3d3db4dd146d MICHEL</code>
+    • Formato: ELIMINAR + ID de transacción + nombre de la persona
+
+    📊 <b>Para obtener CIERRE DIARIO:</b>
+    <code>CIERRE MARIA</code>
+    • Formato: cierre + nombre de la persona
+
+    🔔 <b>Notificaciones en Vivo:</b>
+    Las notificaciones automáticas al propietario están activas por defecto. Para desactivarlas, contacta al desarrollador.
+
+    💡 <b>Recuerda:</b> Siempre incluye tu nombre al final de cada comando para un mejor seguimiento."""
+    
+    await update.message.reply_html(help_message)
     logger.info(f"Help response sent to user {user.full_name}")
 
 
