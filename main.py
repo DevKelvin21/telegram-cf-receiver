@@ -37,9 +37,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     logger.info(f"Start command received from user {user.full_name} (ID: {user.id})")
     
-    welcome_message = f"""🌸 ¡Hola {user.mention_html()}! 🌸
+    welcome_message = f"""¡Hola {user.mention_html()}! 😀
 
-    Bienvenido/a al bot de ventas y gastos para la floristería Morale's �
+    Bienvenido/a al bot de ventas y gastos para la floristería Morale's 🌸
 
     📋 <b>¿Qué puedo hacer por ti?</b>
     • Registrar ventas y transacciones
