@@ -97,12 +97,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     logger.info(f"Help response sent to user {user.full_name}")
 
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message."""
+async def queue_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Queue the user message to be proceesed."""
     user = update.effective_user
     message_text = update.message.text
-    logger.info(f"Echo message received from user {user.full_name} (ID: {user.id}): '{message_text[:50]}{'...' if len(message_text) > 50 else ''}'")
-    
     # Configure TZ
     el_salvador_tz = pytz.timezone("America/El_Salvador")
     local_timestamp = update.message.date.astimezone(el_salvador_tz)
@@ -115,15 +113,16 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             'user_name': user.full_name,
             'message_text': message_text,
             'message_id': update.message.message_id,
-            'timestamp': local_timestamp.isoformat()
+            'timestamp': local_timestamp.isoformat(),
+            'chat_id': update.message.chat_id,
+            'chat_type': update.message.chat.type,
         })
         logger.info(f"Message queued for publication to Pub/Sub for user {user.full_name} (ID: {user.id})")
     except Exception as e:
         logger.error(f"Failed to publish message to Pub/Sub: {str(e)}")
-        await update.message.reply_text("An error occurred while processing your message.")
+        await update.message.reply_text("Un error ocurrio al procesar tu mensaje. Por favor, inténtalo de nuevo más tarde.")
         return
     
-    await update.message.reply_text(update.message.text)
     logger.info(f"Echo response sent to user {user.full_name}")
 
 
@@ -140,7 +139,7 @@ async def main(request):
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, queue_message))
 
     if request.method == 'GET':
         webhook_url = f'https://{request.host}/bot_receiver'
