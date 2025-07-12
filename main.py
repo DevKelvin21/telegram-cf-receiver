@@ -98,7 +98,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def queue_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Queue the user message to be proceesed."""
+    """Queue the user message to be processed."""
     user = update.effective_user
     message_text = update.message.text
     # Configure TZ
@@ -120,7 +120,7 @@ async def queue_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         logger.info(f"Message queued for publication to Pub/Sub for user {user.full_name} (ID: {user.id})")
     except Exception as e:
         logger.error(f"Failed to publish message to Pub/Sub: {str(e)}")
-        await update.message.reply_text("Un error ocurrio al procesar tu mensaje. Por favor, inténtalo de nuevo más tarde.")
+        await update.message.reply_text("Un error ocurrió al procesar tu mensaje. Por favor, inténtalo de nuevo más tarde.")
         return
     
     logger.info(f"Echo response sent to user {user.full_name}")
