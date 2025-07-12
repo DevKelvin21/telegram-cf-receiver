@@ -24,13 +24,13 @@ class PubSubPublisher:
             message_json = json.dumps(data).encode('utf-8')
             future = self.publisher.publish(self.topic_path, message_json)
             
-            future.add_done_callback(
-                lambda f: logger.info(f"Message published successfully. Message ID: {f.result()}") if not f.exception() else None
-            )
+            def handle_publish_result(f):
+                if f.exception():
+                    logger.error(f"Failed to publish message to {self.topic_name}: {f.exception()}")
+                else:
+                    logger.info(f"Message published successfully. Message ID: {f.result()}")
             
-            future.add_done_callback(
-                lambda f: logger.error(f"Failed to publish message to {self.topic_name}: {f.exception()}") if f.exception() else None
-            )
+            future.add_done_callback(handle_publish_result)
             
             return future
         except Exception as e:
