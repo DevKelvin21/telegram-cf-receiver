@@ -16,6 +16,21 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
+# Initialize shared PubSubPublisher instance
+pubsub_publisher = None
+
+def get_pubsub_publisher():
+    """Get or create the shared PubSubPublisher instance."""
+    global pubsub_publisher
+    if pubsub_publisher is None:
+        project_id = os.environ.get('GOOGLE_CLOUD_PROJECT', 'your-project-id')
+        logger.info(f"Creating shared PubSubPublisher instance for project: {project_id}")
+        pubsub_publisher = PubSubPublisher(
+            project_id=project_id,
+            topic_name='telegram-transactions'
+        )
+    return pubsub_publisher
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
@@ -40,26 +55,27 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     message_text = update.message.text
     logger.info(f"Echo message received from user {user.full_name} (ID: {user.id}): '{message_text[:50]}{'...' if len(message_text) > 50 else ''}'")
+    
     # Configure TZ
     el_salvador_tz = pytz.timezone("America/El_Salvador")
     local_timestamp = update.message.date.astimezone(el_salvador_tz)
-    # Publish the message to Pub/Sub
-    pubsub_publisher = PubSubPublisher(
-        project_id=os.environ.get('GOOGLE_CLOUD_PROJECT', 'your-project-id'),
-        topic_name='telegram-transactions'
-    )
+    
+    # Use shared PubSubPublisher instance
     try:
-        pubsub_publisher.publish({
+        publisher = get_pubsub_publisher()
+        publisher.publish({
             'user_id': user.id,
             'user_name': user.full_name,
             'message_text': message_text,
+            'message_id': update.update_id,
             'timestamp': local_timestamp.isoformat()
         })
-        logger.info(f"Message published to Pub/Sub for user {user.full_name} (ID: {user.id})")
+        logger.info(f"Message queued for publication to Pub/Sub for user {user.full_name} (ID: {user.id})")
     except Exception as e:
         logger.error(f"Failed to publish message to Pub/Sub: {str(e)}")
         await update.message.reply_text("An error occurred while processing your message.")
         return
+    
     await update.message.reply_text(update.message.text)
     logger.info(f"Echo response sent to user {user.full_name}")
 
